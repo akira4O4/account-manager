@@ -9,30 +9,52 @@ class Sqlite3DB:
         self.conn = None
         self.cursor = None
 
-    def connect(self) -> None:
         if os.path.exists(self.db_pth) is False:
             db_dir, db_file = os.path.split(self.db_pth)
             os.makedirs(db_dir)
-            logger.info(f'Create DB: {self.db_pth}.')
+        self._connect()
 
-        self.conn = sqlite3.connect(self.db_pth)
-        logger.success(f'Connect database: {self.db_pth}.')
+    def _connect(self) -> None:
+        if self.conn is None:
+            self.conn = sqlite3.connect(self.db_pth)
+            self.cursor = self.conn.cursor()
+            logger.success(f'Connected to database: {self.db_pth}.')
 
-        self.get_cursor()
+    def _commit_and_close(self) -> None:
+        if self.conn:
+            try:
+                self.conn.commit()
+                logger.success('Commit.')
+            except sqlite3.Error as e:
+                logger.error(f"Failed to commit transaction: {e}.")
+            finally:
+                self.conn.close()
+                self.conn = None
+                self.cursor = None
+                logger.success(f'Database connection closed.')
 
-    def get_cursor(self):
-        self.cursor = self.conn.cursor()
+    def execute(self, *args, **kwargs) -> None:
+        try:
+            self._connect()
+            self.cursor.execute(*args, **kwargs)
+            self._commit_and_close()
 
-    def execute(self, cmd: str):
-        self.cursor.execute(cmd)
-        logger.info(f'Execute sql string: {cmd}.')
+        except sqlite3.Error as e:
+            logger.error(f"Database operation failed: {e}")
+            if self.conn:
+                self.conn.rollback()  # 回滚事务
 
     def check_table_exists(self, table_name: str) -> bool:
-        self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';")
-        result = self.cursor.fetchone()
-        if result:
-            logger.info(f"Table: {table_name} is found.")
-        else:
-            logger.info(f"Table: '{table_name}' is not found.")
-
-        return result
+        try:
+            self._connect()
+            self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", (table_name,))
+            result = self.cursor.fetchone()
+            if result:
+                logger.info(f"Table: {table_name} is found.")
+                return True
+            else:
+                logger.info(f"Table: '{table_name}' is not found.")
+                return False
+        except sqlite3.Error as e:
+            logger.error(f"Failed to check table existence: {e}")
+            return False
