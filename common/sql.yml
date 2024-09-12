@@ -1,0 +1,26 @@
+#| user_id | user_name | password | time |
+
+create_user_table: "CREATE TABLE user (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_name TEXT NOT NULL,
+    password TEXT NOT NULL,
+    time DATETIME DEFAULT CURRENT_TIMESTAMP
+);"
+
+# | psw_id | key | password | email | user_id | time |
+create_password_table: "CREATE TABLE password (
+    psw_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key TEXT NOT NULL,
+    password TEXT NULL,
+    email TEXT UNIQUE NOT NULL,
+    user_id INTEGER,
+    time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user (user_id)
+);"
+
+insert_login_data: "INSERT INTO login (user_name, password) VALUES (?, ?);"
+
+insert_password_data: "INSERT INTO login (user_name, password, email) VALUES (?, ?, ?);"
+
+#查询所有用户
+select_all_user: "SELECT * FROM users;"
