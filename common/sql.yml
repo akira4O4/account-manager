@@ -7,10 +7,10 @@ create_user_table: "CREATE TABLE user (
     time DATETIME DEFAULT CURRENT_TIMESTAMP
 );"
 
-# | psw_id | key | password | email | user_id | time |
+# | psw_id | user_name | password | email | user_id | time |
 create_password_table: "CREATE TABLE password (
     psw_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    key TEXT NOT NULL,
+    user_name TEXT NOT NULL,
     password TEXT NULL,
     email TEXT UNIQUE NOT NULL,
     user_id INTEGER,
@@ -18,9 +18,10 @@ create_password_table: "CREATE TABLE password (
     FOREIGN KEY (user_id) REFERENCES user (user_id)
 );"
 
-insert_login_data: "INSERT INTO login (user_name, password) VALUES (?, ?);"
+insert_user_data: "INSERT INTO user (user_name, password) VALUES (?, ?);"
 
-insert_password_data: "INSERT INTO login (user_name, password, email) VALUES (?, ?, ?);"
+insert_password_data: "INSERT INTO password (user_name, password, email) VALUES (?, ?, ?);"
 
-#查询所有用户
 select_all_user: "SELECT * FROM users;"
+
+select_all_password: "SELECT * FROM password;"

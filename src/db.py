@@ -11,6 +11,8 @@ class Sqlite3DB:
 
     def connect(self) -> None:
         if os.path.exists(self.db_pth) is False:
+            db_dir, db_file = os.path.split(self.db_pth)
+            os.makedirs(db_dir)
             logger.info(f'Create DB: {self.db_pth}.')
 
         self.conn = sqlite3.connect(self.db_pth)
@@ -21,9 +23,9 @@ class Sqlite3DB:
     def get_cursor(self):
         self.cursor = self.conn.cursor()
 
-    def execute(self, sql_string: str):
-        self.cursor.execute(sql_string)
-        logger.info(f'Execute sql string: {sql_string}.')
+    def execute(self, cmd: str):
+        self.cursor.execute(cmd)
+        logger.info(f'Execute sql string: {cmd}.')
 
     def check_table_exists(self, table_name: str) -> bool:
         self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';")
@@ -34,6 +36,3 @@ class Sqlite3DB:
             logger.info(f"Table: '{table_name}' is not found.")
 
         return result
-
-    def insert_login(self, user_name: str, password: str, emial: str):
-        ...
