@@ -1,32 +1,46 @@
-local Box=require("src/box")
-local Text=require("src/text")
-local utils=require("src/utils")
-local color=require("src/color")
+local Rect = require("src/Rect")
+local Text = require("src/text")
+local Spring = require("src/spring")
+local utils = require("src/utils")
+local color = require("src/color")
 
 function love.load()
-    win_w,win_h=utils.get_windows_size()
-    win_cx,win_cy=utils.get_windows_cxcy()
-    
-    font_path="assets/fonts/FatPixelFont.ttf"
+    local win_cx, win_cy = utils.get_windows_cxcy()
 
-    login_user_btn=Box:new("fill",500,100,400,100,color.red,20,20,20)
-    login_user_btn_text=Text:new("User",20,color.white,font_path)
-    
-    login_psw_btn=Box:new("fill",0,0,200,100,color.red,20,20,20)
-    login_psw_btn_text=Text:new("Password",24,color.white,font_path)
+    local font_path = "assets/fonts/FatPixelFont.ttf"
 
+    open_btn = Rect:new("fill", color.red)
+    open_btn_text = Text:new("OPEN", 20, color.white, font_path)
+    open_btn_spring = Spring:new()
+    open_btn_spring:init(300, 100, 10)
+
+    open_btn:set_cxcywh(win_cx, win_cy, 300, 100, 20, 20, 20)
+    open_btn_text:set_cxcy(win_cx, win_cy + 20)
 end
 
 function love.update(dt)
+    open_btn_spring:update(dt)
+    open_btn.w = open_btn_spring.x
+    open_btn.x = open_btn.cx - open_btn.w / 2
+    -- open_btn.h = open_btn_spring.x
 end
 
 function love.draw()
-    utils.save_system_coordinate() 
-    old_color=utils.save_color()
+    open_btn:draw()
+    open_btn_text:draw()
+end
 
-    -- utils.translate(win_cx,win_cy)
-    login_user_btn:draw()
-    -- login_user_btn_text:draw(0,0,0,1,1,login_user_btn_text.w/2,login_user_btn_text.h/2-20) 
-    
-    utils.recover_system_coordinate()
+function love.mousemoved(mx, my)
+    if utils.is_mouse_in_rect(mx, my, { open_btn:get_xywh() }) then
+        open_btn.color = color.blud
+    else
+        open_btn.color = color.red
+    end
+end
+
+function love.mousepressed(x, y, button)
+    if utils.is_mouse_in_rect(x, y, { open_btn:get_xywh() }) then
+        open_btn_spring:pull(50)
+        open_btn:translate(open_btn.cx, open_btn.cy)
+    end
 end
