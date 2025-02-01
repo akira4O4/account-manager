@@ -1,10 +1,4 @@
-local Spring = {
-    x = 0,
-    k = 0,
-    d = s0,
-    v = 0,
-    target_x = 0
-}
+local Spring = {}
 
 Spring.__index = Spring
 
@@ -13,7 +7,7 @@ function Spring:new()
     return obj
 end
 
-function Spring:init(x,k,d)
+function Spring:init(x, k, d)
     self.x = x or 0
     self.k = k or 100
     self.d = d or 10
@@ -28,24 +22,14 @@ function Spring:update(dt)
 end
 
 function Spring:pull(f, k, d)
-    if k then
-        self.k = k
-    end
-
-    if d then
-        self.d = d
-    end
+    if k then self.k = k end
+    if d then self.d = d end
     self.x = self.x + f
 end
 
 function Spring:animate(x, k, d)
-    if k then
-        self.k = k
-    end
-
-    if d then
-        self.d = d
-    end
+    if k then self.k = k end
+    if d then self.d = d end
     self.target_x = self.x
 end
 
