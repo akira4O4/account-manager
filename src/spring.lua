@@ -18,7 +18,9 @@ function Spring:update(dt)
     self.x = self.x + self.v * dt
 end
 
-function Spring:pull(f)
+function Spring:pull(f, k, d)
+    self.k = k or self.k
+    self.d = d or self.d
     self.x = self.x + f
 end
 
