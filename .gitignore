@@ -1,7 +1,5 @@
 .idea
 .vscode
-/temp/
-*.db
 .env
 todo
-./assets/
+assets/
